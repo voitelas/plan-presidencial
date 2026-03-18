@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gantt Chart: 72 Meses de Ejecución</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Libre+Baskerville:wght@400;700&display=swap');
+
+        body {
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 50%, #0f1428 100%);
+            color: #fff;
+            font-family: 'Space Mono', monospace;
+            padding: 60px 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 80px;
+            animation: fadeInDown 0.8s ease-out;
+        }
+
+        .header h1 {
+            font-family: 'Libre Baskerville', serif;
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: #4488ff;
+            text-shadow: 0 4px 20px rgba(68, 136, 255, 0.3);
+            letter-spacing: -2px;
+        }
+
+        .header p {
+            font-size: 1.3rem;
+            color: #aaa;
+        }
+
+        .gantt-container {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 40px;
+            overflow-x: auto;
+            margin-bottom: 60px;
+        }
+
+        .gantt-title {
+            text-align: center;
+            font-family: 'Libre Baskerville', serif;
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            color: #ccc;
+        }
+
+        .gantt-table {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            min-width: 1200px;
+        }
+
+        .gantt-row {
+            display: flex;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            animation: fadeIn 0.6s ease-out forwards;
+            opacity: 0;
+        }
+
+        .gantt-row:nth-child(1) { animation-delay: 0.05s; }
+        .gantt-row:nth-child(2) { animation-delay: 0.1s; }
+        .gantt-row:nth-child(3) { animation-delay: 0.15s; }
+        .gantt-row:nth-child(4) { animation-delay: 0.2s; }
+        .gantt-row:nth-child(5) { animation-delay: 0.25s; }
+        .gantt-row:nth-child(6) { animation-delay: 0.3s; }
+        .gantt-row:nth-child(7) { animation-delay: 0.35s; }
+        .gantt-row:nth-child(8) { animation-delay: 0.4s; }
+        .gantt-row:nth-child(n+9) { animation-delay: 0.45s; }
+
+        .gantt-row:hover {
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .gantt-header {
+            display: flex;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+        }
+
+        .gantt-label {
+            min-width: 200px;
+            padding: 15px;
+            font-weight: 700;
+            font-family: 'Libre Baskerville', serif;
+            font-size: 1rem;
+            color: #4488ff;
+        }
+
+        .gantt-month-header {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            font-weight: 700;
+            font-size: 0.9rem;
+            border-left: 1px solid rgba(255, 255, 255, 0.1);
+            color: #888;
+        }
+
+        .gantt-item-label {
+            min-width: 200px;
+            padding: 12px 15px;
+            font-size: 0.95rem;
+            color: #ccc;
+            display: flex;
+            align-items: center;
+        }
+
+        .gantt-item-icon {
+            width: 20px;
+            height: 20px;
+            border-radius: 3px;
+            margin-right: 10px;
+            flex-shrink: 0;
+        }
+
+        .gantt-item-icon.phase0 { background: #ff4444; }
+        .gantt-item-icon.phase1 { background: #4488ff; }
+        .gantt-item-icon.phase2 { background: #44ff88; }
+        .gantt-item-icon.phase3 { background: #ffaa44; }
+
+        .gantt-timeline {
+            flex: 1;
+            position: relative;
+            display: flex;
+        }
+
+        .gantt-bar-container {
+            flex: 1;
+            position: relative;
+            min-height: 45px;
+            display: flex;
+            align-items: center;
+            padding: 0 2px;
+            border-left: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .gantt-bar {
+            height: 30px;
+            border-radius: 6px;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #000;
+            overflow: hidden;
+        }
+
+        .gantt-bar:hover {
+            height: 35px;
+            box-shadow: 0 4px 16px rgba(255, 255, 255, 0.2);
+        }
+
+        .gantt-bar.phase0 { background: #ff4444; }
+        .gantt-bar.phase1 { background: #4488ff; }
+        .gantt-bar.phase2 { background: #44ff88; }
+        .gantt-bar.phase3 { background: #ffaa44; }
+
+        .phase-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-top: 80px;
+        }
+
+        .phase-card {
+            padding: 30px;
+            border-left: 4px solid;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            animation: slideUp 0.6s ease-out forwards;
+            opacity: 0;
+        }
+
+        .phase-card:nth-child(1) {
+            animation-delay: 0.1s;
+            border-left-color: #ff4444;
+        }
+
+        .phase-card:nth-child(2) {
+            animation-delay: 0.2s;
+            border-left-color: #4488ff;
+        }
+
+        .phase-card:nth-child(3) {
+            animation-delay: 0.3s;
+            border-left-color: #44ff88;
+        }
+
+        .phase-card:nth-child(4) {
+            animation-delay: 0.4s;
+            border-left-color: #ffaa44;
+        }
+
+        .phase-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 40px rgba(255, 255, 255, 0.1);
+        }
+
+        .phase-card h3 {
+            font-family: 'Libre Baskerville', serif;
+            font-size: 1.2rem;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .phase-card:nth-child(1) h3 { color: #ff4444; }
+        .phase-card:nth-child(2) h3 { color: #4488ff; }
+        .phase-card:nth-child(3) h3 { color: #44ff88; }
+        .phase-card:nth-child(4) h3 { color: #ffaa44; }
+
+        .phase-duration {
+            font-size: 0.85rem;
+            color: #888;
+            margin-bottom: 15px;
+            font-family: 'Space Mono', monospace;
+        }
+
+        .phase-item {
+            font-size: 0.9rem;
+            color: #ccc;
+            margin-bottom: 8px;
+            padding-left: 15px;
+            position: relative;
+            line-height: 1.4;
+        }
+
+        .phase-item::before {
+            content: '→';
+            position: absolute;
+            left: 0;
+            opacity: 0.6;
+        }
+
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            margin-top: 60px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+        }
+
+        .legend-color.phase0 { background: #ff4444; }
+        .legend-color.phase1 { background: #4488ff; }
+        .legend-color.phase2 { background: #44ff88; }
+        .legend-color.phase3 { background: #ffaa44; }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .gantt-container {
+                padding: 20px;
+            }
+
+            .gantt-label, .gantt-item-label {
+                min-width: 150px;
+                padding: 10px;
+                font-size: 0.85rem;
+            }
+
+            .gantt-month-header {
+                font-size: 0.8rem;
+                padding: 10px;
+            }
+
+            .gantt-bar-container {
+                min-height: 40px;
+            }
+
+            .legend {
+                gap: 15px;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>TIMELINE</h1>
+            <p>Gantt Chart: 72 Meses de Ejecución Secuencial</p>
+        </div>
+
+        <div class="gantt-container">
+            <div class="gantt-title">Cronograma de Fases y Hitos Principales</div>
+
+            <div class="gantt-table">
+                <!-- Header -->
+                <div class="gantt-header">
+                    <div class="gantt-label">INICIATIVA</div>
+                    <div class="gantt-month-header">0-6M</div>
+                    <div class="gantt-month-header">6-12M</div>
+                    <div class="gantt-month-header">12-18M</div>
+                    <div class="gantt-month-header">18-24M</div>
+                    <div class="gantt-month-header">24-30M</div>
+                    <div class="gantt-month-header">30-36M</div>
+                    <div class="gantt-month-header">36-42M</div>
+                    <div class="gantt-month-header">42-48M</div>
+                    <div class="gantt-month-header">48-54M</div>
+                    <div class="gantt-month-header">54-60M</div>
+                    <div class="gantt-month-header">60-66M</div>
+                    <div class="gantt-month-header">66-72M</div>
+                </div>
+
+                <!-- Phase 0 Items -->
+                <div class="gantt-row">
+                    <div class="gantt-item-label"><div class="gantt-item-icon phase0"></div>Gabinete Crisis</div>
+                    <div class="gantt-timeline">
+                        <div class="gantt-bar-container"><div class="gantt-bar phase0" style="width: 5%;"></div></div>
+                        <div class="gantt-bar-container"></div>
+                        <div class="gantt-bar-container"></div>
+                        <div class="gantt-bar-container"></div>
+                        <div class="gantt-bar-container"></div>
+                        <div class="gantt-bar-container"></div>
+                        <div class="gantt-bar-container"></div>
+                        <div class="gantt-bar-container"></div>
+                        <div class="gantt-bar-container"></div>
+                        <div class="gantt-bar-container"></div>
+                        <div class="gantt-bar-container"></div>
+                        <div class="gantt-bar-container"></div>
+                    </div>
+                </div>
+
+                <div class="gantt-row">
+                    <div class="gantt-item-label"><div class="gantt-item-icon phase0"></div>UIFG Operacional</div>
+                    <div class="gantt-timeline">
+                        <div class="gantt-bar-container"><div class="gantt-bar phase0" style="width: 10%;"></div></div>
+                        <div class="gantt-bar-container"></div>
+                        <div class="gantt-bar-container"></div>
+                        <div class="gantt-bar-container"></div>
+                        <div class="gantt-bar-container"></div>
+                        <div class="gantt-bar-container"></div>
+                        <div class="gantt-bar-container"></div>
+                        <div class="gantt-bar-container"></div>
+                        <div class="gantt-bar-container"></div>
+                        <div class="gantt-bar-container"></div>
+                        <div class="gantt-bar-container"></div>
+                        <div class="gantt-bar-container"></div>
+                    </div>
+                </div>
+
+                <div class="gantt-row">
+                    <div class="gantt-item-label"><div class="gantt-item-icon phase0"></div>Purga Policial</div>
+                    <div class="gantt-timeline">
+                        <div class="gantt-bar-container"><div class="gantt-bar phase0" style="width: 25%;"></div></div>
+                        <div class="gantt-bar-container"></div>
+                        <div class="gantt-bar-container"></div>
+                        <div class="gantt-bar-container"></div>
+                        <div class="gantt-bar-container"></div>
+                        <div class="gantt-bar-container"></div>
+                        <div class="gantt-bar-container"></div>
+                        <div class="gantt-bar-container"></div>
+                        <div class="gantt-bar-container"></div>
+                        <div class="gantt-bar-container"></div>
+                        <div class="gantt-bar-container"></div>
+                        <div class="gantt-bar-container"></div>
+                    </div>
+                </div>
+
+                <div class="gantt-row">
+                    <div class="gantt-item-label"><div class="gantt-item-icon phase0"></div>Captura Capos</div>
+                    <div class="gantt-timeline">
+                        <div class="gantt-bar-container"><div class="gantt-bar phase0" style="width: 30%;"></div></div>
+                        <div class="gantt-bar-container"></div>
+                        <div class="gantt-bar-container"></div>
+                        <div class="gantt-bar-container"></div>
+                        <div class="gantt-bar-container"></div>
+                        <div class="gantt-bar-container"></div>
+                        <div class="gantt-bar-container"></div>
+                        <div class="gantt-bar-container"></div>
+                        <div class="gantt-bar-container"></div>
+                        <div class="gantt-bar-container"></div>
+                        <div class="gantt-bar-container"></div>
+                        <div class="gantt-bar-container"></div>
+                    </div>
+                </div>
+
+                <div class="gantt-row">
+                    <div class="gantt-item-label"><div class="gantt-item-icon phase0"></div>Congelamiento Activos</div>
+                    <div class="gantt-timeline">
+                        <div class="gantt-bar-container"><div class="gantt-bar phase0" style="width: 40%;"></div></div>
+                        <div class="gantt-bar-container"></div>
+                        <div class="gantt-bar-container"></div>
+                        <div class="gantt-bar-container"></div>
+                        <div class="gantt-bar-container"></div>
+                        <div class="gantt-bar-container"></div>
+                        <div class="gantt-bar-container"></div>
+                        <div class="gantt-bar-container"></div>
+                        <div class="gantt-bar-container"></div>
+                        <div class="gantt-bar-container"></div>
+                        <div class="gantt-bar-container"></div>
+                        <div class="gantt-bar-container"></div>
+                    </div>
+                </div>
+
+                <!-- Phase 1 Items -->
+                <div class="gantt-row">
+                    <div class="gantt-item-label"><div class="gantt-item-icon phase1"></div>Ley Carrera Fiscal</div>
+                    <div class="gantt-timeline">
+                        <div class="gantt-bar-container"><div class="gantt-bar phase1" style="width: 30%;"></div></div>
+                        <div class="gantt-bar-container"><div class="gantt-bar phase1" style="width: 80%;"></div></div>
+                        <div class="gantt-bar-container"></div>
+                        <div class="gantt-bar-container"></div>
+                        <div class="gantt-bar-container"></div>
+                        <div class="gantt-bar-container"></div>
+                        <div class="gantt-bar-container"></div>
+                        <div class="gantt-bar-container"></div>
+                        <div class="gantt-bar-container"></div>
+                        <div class="gantt-bar-container"></div>
+                        <div class="gantt-bar-container"></div>
+                        <div class="gantt-bar-container"></div>
+                    </div>
+                </div>
+
+                <div class="gantt-row">
+                    <div class="gantt-item-label"><div class="gantt-item-icon phase1"></div>Fiscales Nuevos Operacionales</div>
+                    <div class="gantt-timeline">
+                        <div class="gantt-bar-container"></div>
+                        <div class="gantt-bar-container"><div class="gantt-bar phase1" style="width: 100%;"></div></div>
+                        <div class="gantt-bar-container"><div class="gantt-bar phase1" style="width: 70%;"></div></div>
+                        <div class="gantt-bar-container"></div>
+                        <div class="gantt-bar-container"></div>
+                        <div class="gantt-bar-container"></div>
+                        <div class="gantt-bar-container"></div>
+                        <div class="gantt-bar-container"></div>
+                        <div class="gantt-bar-container"></div>
+                        <div class="gantt-bar-container"></div>
+                        <div class="gantt-bar-container"></div>
+                        <div class="gantt-bar-container"></div>
+                    </div>
+                </div>
+
+                <div class="gantt-row">
+                    <div class="gantt-item-label"><div class="gantt-item-icon phase1"></div>Aduanas Modernas</div>
+                    <div class="gantt-timeline">
+                        <div class="gantt-bar-container"></div>
+                        <div class="gantt-bar-container"><div class="gantt-bar phase1" style="width: 60%;"></div></div>
+                        <div class="gantt-bar-container"><div class="gantt-bar phase1" style="width: 100%;"></div></div>
+                        <div class="gantt-bar-container"><div class="gantt-bar phase1" style="width: 100%;"></div></div>
+                        <div class="gantt-bar-container"></div>
+                        <div class="gantt-bar-container"></div>
+                        <div class="gantt-bar-container"></div>
+                        <div class="gantt-bar-container"></div>
+                        <div class="gantt-bar-container"></div>
+                        <div class="gantt-bar-container"></div>
+                        <div class="gantt-bar-container"></div>
+                        <div class="gantt-bar-container"></div>
+                    </div>
+                </div>
+
+                <!-- Phase 2 Items -->
+                <div class="gantt-row">
+                    <div class="gantt-item-label"><div class="gantt-item-icon phase2"></div>ZEEF Operacionales</div>
+                    <div class="gantt-timeline">
+                        <div class="gantt-bar-container"></div>
+                        <div class="gantt-bar-container"></div>
+                        <div class="gantt-bar-container"><div class="gantt-bar phase2" style="width: 40%;"></div></div>
+                        <div class="gantt-bar-container"><div class="gantt-bar phase2" style="width: 100%;"></div></div>
+                        <div class="gantt-bar-container"><div class="gantt-bar phase2" style="width: 100%;"></div></div>
+                        <div class="gantt-bar-container"><div class="gantt-bar phase2" style="width: 100%;"></div></div>
+                        <div class="gantt-bar-container"></div>
+                        <div class="gantt-bar-container"></div>
+                        <div class="gantt-bar-container"></div>
+                        <div class="gantt-bar-container"></div>
+                        <div class="gantt-bar-container"></div>
+                        <div class="gantt-bar-container"></div>
+                    </div>
+                </div>
+
+                <div class="gantt-row">
+                    <div class="gantt-item-label"><div class="gantt-item-icon phase2"></div>Infraestructura Hídrica</div>
+                    <div class="gantt-timeline">
+                        <div class="gantt-bar-container"></div>
+                        <div class="gantt-bar-container"></div>
+                        <div class="gantt-bar-container"><div class="gantt-bar phase2" style="width: 30%;"></div></div>
+                        <div class="gantt-bar-container"><div class="gantt-bar phase2" style="width: 100%;"></div></div>
+                        <div class="gantt-bar-container"><div class="gantt-bar phase2" style="width: 100%;"></div></div>
+                        <div class="gantt-bar-container"><div class="gantt-bar phase2" style="width: 100%;"></div></div>
+                        <div class="gantt-bar-container"><div class="gantt-bar phase2" style="width: 100%;"></div></div>
+                        <div class="gantt-bar-container"><div class="gantt-bar phase2" style="width: 100%;"></div></div>
+                        <div class="gantt-bar-container"><div class="gantt-bar phase2" style="width: 100%;"></div></div>
+                        <div class="gantt-bar-container"><div class="gantt-bar phase2" style="width: 100%;"></div></div>
+                        <div class="gantt-bar-container"><div class="gantt-bar phase2" style="width: 50%;"></div></div>
+                        <div class="gantt-bar-container"></div>
+                    </div>
+                </div>
+
+                <div class="gantt-row">
+                    <div class="gantt-item-label"><div class="gantt-item-icon phase2"></div>Educación Técnica</div>
+                    <div class="gantt-timeline">
+                        <div class="gantt-bar-container"></div>
+                        <div class="gantt-bar-container"></div>
+                        <div class="gantt-bar-container"><div class="gantt-bar phase2" style="width: 40%;"></div></div>
+                        <div class="gantt-bar-container"><div class="gantt-bar phase2" style="width: 100%;"></div></div>
+                        <div class="gantt-bar-container"><div class="gantt-bar phase2" style="width: 100%;"></div></div>
+                        <div class="gantt-bar-container"><div class="gantt-bar phase2" style="width: 100%;"></div></div>
+                        <div class="gantt-bar-container"><div class="gantt-bar phase2" style="width: 100%;"></div></div>
+                        <div class="gantt-bar-container"><div class="gantt-bar phase2" style="width: 100%;"></div></div>
+                        <div class="gantt-bar-container"><div class="gantt-bar phase2" style="width: 100%;"></div></div>
+                        <div class="gantt-bar-container"><div class="gantt-bar phase2" style="width: 100%;"></div></div>
+                        <div class="gantt-bar-container"><div class="gantt-bar phase2" style="width: 100%;"></div></div>
+                        <div class="gantt-bar-container"><div class="gantt-bar phase2" style="width: 100%;"></div></div>
+                    </div>
+                </div>
+
+                <!-- Phase 3 Items -->
+                <div class="gantt-row">
+                    <div class="gantt-item-label"><div class="gantt-item-icon phase3"></div>ALNMI (Liderazgo Regional)</div>
+                    <div class="gantt-timeline">
+                        <div class="gantt-bar-container"></div>
+                        <div class="gantt-bar-container"></div>
+                        <div class="gantt-bar-container"></div>
+                        <div class="gantt-bar-container"></div>
+                        <div class="gantt-bar-container"></div>
+                        <div class="gantt-bar-container"></div>
+                        <div class="gantt-bar-container"><div class="gantt-bar phase3" style="width: 50%;"></div></div>
+                        <div class="gantt-bar-container"><div class="gantt-bar phase3" style="width: 100%;"></div></div>
+                        <div class="gantt-bar-container"><div class="gantt-bar phase3" style="width: 100%;"></div></div>
+                        <div class="gantt-bar-container"><div class="gantt-bar phase3" style="width: 100%;"></div></div>
+                        <div class="gantt-bar-container"><div class="gantt-bar phase3" style="width: 100%;"></div></div>
+                        <div class="gantt-bar-container"><div class="gantt-bar phase3" style="width: 100%;"></div></div>
+                    </div>
+                </div>
+
+                <div class="gantt-row">
+                    <div class="gantt-item-label"><div class="gantt-item-icon phase3"></div>Tren Bala: Construcción</div>
+                    <div class="gantt-timeline">
+                        <div class="gantt-bar-container"></div>
+                        <div class="gantt-bar-container"></div>
+                        <div class="gantt-bar-container"></div>
+                        <div class="gantt-bar-container"></div>
+                        <div class="gantt-bar-container"></div>
+                        <div class="gantt-bar-container"></div>
+                        <div class="gantt-bar-container"><div class="gantt-bar phase3" style="width: 30%;"></div></div>
+                        <div class="gantt-bar-container"><div class="gantt-bar phase3" style="width: 100%;"></div></div>
+                        <div class="gantt-bar-container"><div class="gantt-bar phase3" style="width: 100%;"></div></div>
+                        <div class="gantt-bar-container"><div class="gantt-bar phase3" style="width: 100%;"></div></div>
+                        <div class="gantt-bar-container"><div class="gantt-bar phase3" style="width: 100%;"></div></div>
+                        <div class="gantt-bar-container"><div class="gantt-bar phase3" style="width: 50%;"></div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color phase0"></div>
+                <span>Fase 0: Emergencia (0-6M)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color phase1"></div>
+                <span>Fase 1: Instituciones (6-18M)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color phase2"></div>
+                <span>Fase 2: Economía (18-36M)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color phase3"></div>
+                <span>Fase 3: Sostenibilidad (36-72M)</span>
+            </div>
+        </div>
+
+        <div class="phase-summary">
+            <div class="phase-card">
+                <h3>Fase 0: Emergencia</h3>
+                <div class="phase-duration">Meses 0-6 | Semanas 1-26</div>
+                <div class="phase-item">Gabinete de Crisis instalado</div>
+                <div class="phase-item">UIFG operacional (150 analistas)</div>
+                <div class="phase-item">1,500 policías despedidos</div>
+                <div class="phase-item">10 capos capturados</div>
+                <div class="phase-item">$3-5B confiscados</div>
+            </div>
+
+            <div class="phase-card">
+                <h3>Fase 1: Instituciones</h3>
+                <div class="phase-duration">Meses 6-18 | Semanas 27-78</div>
+                <div class="phase-item">150 fiscales independientes</div>
+                <div class="phase-item">Aduanas modernas en 3 puertos</div>
+                <div class="phase-item">20-30 laboratorios destruidos</div>
+                <div class="phase-item">SBIJ plataforma judicial</div>
+                <div class="phase-item">Presupuesto fiscal blindado</div>
+            </div>
+
+            <div class="phase-card">
+                <h3>Fase 2: Economía</h3>
+                <div class="phase-duration">Meses 18-36 | Semanas 79-156</div>
+                <div class="phase-item">3 ZEEF operacionales</div>
+                <div class="phase-item">6,000+ empleos formales</div>
+                <div class="phase-item">100,000 migrantes regularizados</div>
+                <div class="phase-item">Infraestructura hídrica iniciada</div>
+                <div class="phase-item">H-2A/B expandido a 300k</div>
+            </div>
+
+            <div class="phase-card">
+                <h3>Fase 3: Sostenibilidad</h3>
+                <div class="phase-duration">Meses 36-72 | Semanas 157-312</div>
+                <div class="phase-item">México lidera ALNMI regional</div>
+                <div class="phase-item">Tren Bala: Fase 1 construcción</div>
+                <div class="phase-item">900,000 empleos totales</div>
+                <div class="phase-item">-30% en homicidios</div>
+                <div class="phase-item">Auditoría final + sostenibilidad</div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

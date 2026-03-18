@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard de Indicadores de Éxito</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Libre+Baskerville:wght@400;700&display=swap');
+
+        body {
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 50%, #0f1428 100%);
+            color: #fff;
+            font-family: 'Space Mono', monospace;
+            padding: 60px 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 80px;
+            animation: fadeInDown 0.8s ease-out;
+        }
+
+        .header h1 {
+            font-family: 'Libre Baskerville', serif;
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: #44ff88;
+            text-shadow: 0 4px 20px rgba(68, 255, 136, 0.3);
+            letter-spacing: -2px;
+        }
+
+        .header p {
+            font-size: 1.3rem;
+            color: #aaa;
+        }
+
+        .header .subtitle {
+            font-size: 1rem;
+            color: #888;
+            margin-top: 10px;
+        }
+
+        .indicators-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 80px;
+        }
+
+        .indicator-card {
+            padding: 40px;
+            border-radius: 12px;
+            border: 2px solid;
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            animation: slideUp 0.6s ease-out forwards;
+            opacity: 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .indicator-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            animation: shimmer 3s infinite;
+        }
+
+        .indicator-card:nth-child(1) {
+            animation-delay: 0.1s;
+            border-color: #44ff88;
+        }
+
+        .indicator-card:nth-child(2) {
+            animation-delay: 0.2s;
+            border-color: #ff4444;
+        }
+
+        .indicator-card:nth-child(3) {
+            animation-delay: 0.3s;
+            border-color: #4488ff;
+        }
+
+        .indicator-card:nth-child(4) {
+            animation-delay: 0.4s;
+            border-color: #ffaa44;
+        }
+
+        .indicator-card:nth-child(5) {
+            animation-delay: 0.5s;
+            border-color: #ff6688;
+        }
+
+        .indicator-card:nth-child(6) {
+            animation-delay: 0.6s;
+            border-color: #88ff44;
+        }
+
+        .indicator-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 60px rgba(68, 255, 136, 0.15);
+        }
+
+        .indicator-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .indicator-card:nth-child(1) .indicator-icon { background: rgba(68, 255, 136, 0.2); }
+        .indicator-card:nth-child(2) .indicator-icon { background: rgba(255, 68, 68, 0.2); }
+        .indicator-card:nth-child(3) .indicator-icon { background: rgba(68, 136, 255, 0.2); }
+        .indicator-card:nth-child(4) .indicator-icon { background: rgba(255, 170, 68, 0.2); }
+        .indicator-card:nth-child(5) .indicator-icon { background: rgba(255, 102, 136, 0.2); }
+        .indicator-card:nth-child(6) .indicator-icon { background: rgba(136, 255, 68, 0.2); }
+
+        .indicator-title {
+            font-family: 'Libre Baskerville', serif;
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .indicator-card:nth-child(1) .indicator-title { color: #44ff88; }
+        .indicator-card:nth-child(2) .indicator-title { color: #ff4444; }
+        .indicator-card:nth-child(3) .indicator-title { color: #4488ff; }
+        .indicator-card:nth-child(4) .indicator-title { color: #ffaa44; }
+        .indicator-card:nth-child(5) .indicator-title { color: #ff6688; }
+        .indicator-card:nth-child(6) .indicator-title { color: #88ff44; }
+
+        .indicator-metric {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            font-family: 'Space Mono', monospace;
+            line-height: 1;
+        }
+
+        .indicator-baseline {
+            font-size: 0.85rem;
+            color: #888;
+            margin-bottom: 20px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 4px;
+            animation: progressFill 2s ease-out forwards;
+            opacity: 0;
+        }
+
+        .indicator-card:nth-child(1) .progress-fill { background: #44ff88; animation-delay: 0.8s; }
+        .indicator-card:nth-child(2) .progress-fill { background: #ff4444; animation-delay: 0.9s; }
+        .indicator-card:nth-child(3) .progress-fill { background: #4488ff; animation-delay: 1s; }
+        .indicator-card:nth-child(4) .progress-fill { background: #ffaa44; animation-delay: 1.1s; }
+        .indicator-card:nth-child(5) .progress-fill { background: #ff6688; animation-delay: 1.2s; }
+        .indicator-card:nth-child(6) .progress-fill { background: #88ff44; animation-delay: 1.3s; }
+
+        .indicator-description {
+            font-size: 0.95rem;
+            color: #ccc;
+            line-height: 1.6;
+        }
+
+        .timeline-comparison {
+            margin-top: 80px;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            animation: fadeIn 0.8s ease-out 0.5s forwards;
+            opacity: 0;
+        }
+
+        .comparison-title {
+            font-family: 'Libre Baskerville', serif;
+            font-size: 1.5rem;
+            text-align: center;
+            margin-bottom: 40px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #ffaa44;
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+        }
+
+        .comparison-item {
+            padding: 30px;
+            border-radius: 12px;
+            border-left: 4px solid;
+            background: rgba(255, 255, 255, 0.03);
+            animation: slideUp 0.6s ease-out forwards;
+            opacity: 0;
+        }
+
+        .comparison-item:nth-child(1) {
+            animation-delay: 0.6s;
+            border-left-color: #888;
+        }
+
+        .comparison-item:nth-child(2) {
+            animation-delay: 0.7s;
+            border-left-color: #44ff88;
+        }
+
+        .comparison-item h4 {
+            font-family: 'Libre Baskerville', serif;
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .comparison-item:nth-child(1) h4 { color: #888; }
+        .comparison-item:nth-child(2) h4 { color: #44ff88; }
+
+        .comparison-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            font-family: 'Space Mono', monospace;
+        }
+
+        .comparison-item:nth-child(1) .comparison-value { color: #666; }
+        .comparison-item:nth-child(2) .comparison-value { color: #44ff88; }
+
+        .comparison-detail {
+            font-size: 0.9rem;
+            color: #aaa;
+            line-height: 1.5;
+        }
+
+        .success-criteria {
+            margin-top: 80px;
+            padding: 40px;
+            background: rgba(68, 255, 136, 0.05);
+            border: 2px solid rgba(68, 255, 136, 0.3);
+            border-radius: 12px;
+            animation: fadeIn 0.8s ease-out 0.7s forwards;
+            opacity: 0;
+        }
+
+        .success-title {
+            font-family: 'Libre Baskerville', serif;
+            font-size: 1.5rem;
+            color: #44ff88;
+            margin-bottom: 30px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .success-checklist {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .checklist-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            padding: 15px;
+            background: rgba(68, 255, 136, 0.1);
+            border-radius: 8px;
+            animation: slideIn 0.5s ease-out forwards;
+            opacity: 0;
+        }
+
+        .checklist-item:nth-child(1) { animation-delay: 0.8s; }
+        .checklist-item:nth-child(2) { animation-delay: 0.85s; }
+        .checklist-item:nth-child(3) { animation-delay: 0.9s; }
+        .checklist-item:nth-child(4) { animation-delay: 0.95s; }
+        .checklist-item:nth-child(5) { animation-delay: 1s; }
+        .checklist-item:nth-child(6) { animation-delay: 1.05s; }
+
+        .checklist-icon {
+            color: #44ff88;
+            font-weight: 700;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .checklist-text {
+            font-size: 0.95rem;
+            color: #ccc;
+            line-height: 1.5;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        @keyframes progressFill {
+            from {
+                width: 0;
+                opacity: 0;
+            }
+            to {
+                width: 100%;
+                opacity: 1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .indicators-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .indicator-card {
+                padding: 25px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>INDICADORES</h1>
+            <p>Métricas de Éxito: Año 0 vs. Año 6</p>
+            <div class="subtitle">Comparación de resultados esperados</div>
+        </div>
+
+        <div class="indicators-grid">
+            <!-- Seguridad -->
+            <div class="indicator-card">
+                <div class="indicator-icon">🔴</div>
+                <div class="indicator-title">Homicidios</div>
+                <div class="indicator-metric">-30%</div>
+                <div class="indicator-baseline">De 250,000 a 175,000 anuales</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 70%;"></div>
+                </div>
+                <div class="indicator-description">
+                    Reducción documentada de violencia homicida a través de captura de capos y persecución financiera
+                </div>
+            </div>
+
+            <!-- Empleo -->
+            <div class="indicator-card">
+                <div class="indicator-icon">💼</div>
+                <div class="indicator-title">Empleo Formal</div>
+                <div class="indicator-metric">+900k</div>
+                <div class="indicator-baseline">Empleos nuevos generados en 6 años</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 85%;"></div>
+                </div>
+                <div class="indicator-description">
+                    Creados a través de ZEEF, educación técnica, infraestructura y migración regulada
+                </div>
+            </div>
+
+            <!-- Crecimiento -->
+            <div class="indicator-card">
+                <div class="indicator-icon">📈</div>
+                <div class="indicator-title">PIB Adicional</div>
+                <div class="indicator-metric">+1.5-2%</div>
+                <div class="indicator-baseline">Crecimiento anual acumulativo</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 75%;"></div>
+                </div>
+                <div class="indicator-description">
+                    Impulsado por inversión privada, exportaciones y productividad institucional mejorada
+                </div>
+            </div>
+
+            <!-- Confianza -->
+            <div class="indicator-card">
+                <div class="indicator-icon">🤝</div>
+                <div class="indicator-title">Confianza Institucional</div>
+                <div class="indicator-metric">+40 pts</div>
+                <div class="indicator-baseline">Incremento en índices de satisfacción</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 90%;"></div>
+                </div>
+                <div class="indicator-description">
+                    Resultado de fiscalías funcionales, aduanas eficientes y reducción de corrupción documentada
+                </div>
+            </div>
+
+            <!-- Migración -->
+            <div class="indicator-card">
+                <div class="indicator-icon">🚩</div>
+                <div class="indicator-title">Migración Ilegal</div>
+                <div class="indicator-metric">-50%</div>
+                <div class="indicator-baseline">Reducción en cruces irregulares</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 65%;"></div>
+                </div>
+                <div class="indicator-description">
+                    Por empleo en ZEEF, H-2A/B expandido, y corredores económicos del sur
+                </div>
+            </div>
+
+            <!-- Corrupción Policial -->
+            <div class="indicator-card">
+                <div class="indicator-icon">🛡️</div>
+                <div class="indicator-title">Corrupción Policial</div>
+                <div class="indicator-metric">-80%</div>
+                <div class="indicator-baseline">Reducción de cooptación criminal</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 88%;"></div>
+                </div>
+                <div class="indicator-description">
+                    Por purga de 40% de efectivos cooptados y reemplazo con personal certificado
+                </div>
+            </div>
+        </div>
+
+        <div class="timeline-comparison">
+            <div class="comparison-title">Comparativa: Estado Actual vs. Año 6</div>
+
+            <div class="comparison-grid">
+                <div class="comparison-item">
+                    <h4>Hoy (Año 0)</h4>
+                    <div style="font-size: 0.85rem; color: #888; line-height: 1.8;">
+                        • Homicidios: 250,000/año<br>
+                        • Desempleo: 3.5% oficial (6%+ real)<br>
+                        • PIB: Crecimiento 1.5%<br>
+                        • Confianza: 35% en instituciones<br>
+                        • Migración ilegal: 500,000+/año<br>
+                        • Sentencias: 93% impunidad
+                    </div>
+                </div>
+
+                <div class="comparison-item">
+                    <h4>Meta (Año 6)</h4>
+                    <div style="font-size: 0.85rem; color: #ccc; line-height: 1.8;">
+                        • Homicidios: 175,000/año<br>
+                        • Desempleo: 2.5% (+ 900k empleos)<br>
+                        • PIB: Crecimiento 2.5-3.5%<br>
+                        • Confianza: 75% en instituciones<br>
+                        • Migración ordenada: 250,000/año<br>
+                        • Sentencias: 60%+ condenas en plazo
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="success-criteria">
+            <div class="success-title">✓ Criterios de Éxito</div>
+
+            <div class="success-checklist">
+                <div class="checklist-item">
+                    <div class="checklist-icon">✓</div>
+                    <div class="checklist-text">10 capos nivel 1 capturados en primeros 6 meses</div>
+                </div>
+
+                <div class="checklist-item">
+                    <div class="checklist-icon">✓</div>
+                    <div class="checklist-text">$3-5B confiscados financian reformas core</div>
+                </div>
+
+                <div class="checklist-item">
+                    <div class="checklist-icon">✓</div>
+                    <div class="checklist-text">150+ fiscales independientes operacionales</div>
+                </div>
+
+                <div class="checklist-item">
+                    <div class="checklist-icon">✓</div>
+                    <div class="checklist-text">Aduanas modernas operacionales en 3 puertos</div>
+                </div>
+
+                <div class="checklist-item">
+                    <div class="checklist-icon">✓</div>
+                    <div class="checklist-text">3 ZEEF operacionales con inversión privada</div>
+                </div>
+
+                <div class="checklist-item">
+                    <div class="checklist-icon">✓</div>
+                    <div class="checklist-text">0 represalias electorales (gobernantes apoya)</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

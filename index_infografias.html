@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plan Presidencial: Infografías Completas</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Libre+Baskerville:wght@400;700&display=swap');
+
+        body {
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 50%, #0f1428 100%);
+            color: #fff;
+            font-family: 'Space Mono', monospace;
+            padding: 0;
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        .noise {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' seed='2' /%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .container {
+            position: relative;
+            z-index: 2;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 80px 20px;
+        }
+
+        .hero {
+            text-align: center;
+            margin-bottom: 100px;
+            animation: fadeInDown 1s ease-out;
+        }
+
+        .hero h1 {
+            font-family: 'Libre Baskerville', serif;
+            font-size: 4.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #ff4444 0%, #4488ff 50%, #44ff88 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 4px 20px rgba(255, 68, 68, 0.3);
+            letter-spacing: -2px;
+            margin-bottom: 20px;
+        }
+
+        .hero p {
+            font-size: 1.5rem;
+            color: #aaa;
+            margin-bottom: 10px;
+            font-weight: 400;
+        }
+
+        .hero .subtitle {
+            font-size: 1.1rem;
+            color: #888;
+            margin-bottom: 40px;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .cta-button {
+            display: inline-block;
+            padding: 15px 40px;
+            background: linear-gradient(135deg, #ff4444, #ff6688);
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            font-family: 'Space Mono', monospace;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 20px;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 40px rgba(255, 68, 68, 0.4);
+        }
+
+        .infografias-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
+            margin-bottom: 100px;
+        }
+
+        .infografia-card {
+            padding: 40px;
+            border-radius: 12px;
+            border: 2px solid;
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            transition: all 0.4s ease;
+            animation: slideUp 0.6s ease-out forwards;
+            opacity: 0;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .infografia-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.1) 50%, transparent 70%);
+            transform: translateX(-100%);
+            animation: shimmer 3s infinite;
+            pointer-events: none;
+        }
+
+        .infografia-card:nth-child(1) {
+            animation-delay: 0.1s;
+            border-color: #44ff88;
+        }
+
+        .infografia-card:nth-child(1):hover {
+            border-color: #44ff88;
+            box-shadow: 0 20px 60px rgba(68, 255, 136, 0.2);
+        }
+
+        .infografia-card:nth-child(2) {
+            animation-delay: 0.2s;
+            border-color: #ffaa44;
+        }
+
+        .infografia-card:nth-child(2):hover {
+            border-color: #ffaa44;
+            box-shadow: 0 20px 60px rgba(255, 170, 68, 0.2);
+        }
+
+        .infografia-card:nth-child(3) {
+            animation-delay: 0.3s;
+            border-color: #44ff88;
+        }
+
+        .infografia-card:nth-child(3):hover {
+            border-color: #44ff88;
+            box-shadow: 0 20px 60px rgba(68, 255, 136, 0.2);
+        }
+
+        .infografia-card:nth-child(4) {
+            animation-delay: 0.4s;
+            border-color: #ff4444;
+        }
+
+        .infografia-card:nth-child(4):hover {
+            border-color: #ff4444;
+            box-shadow: 0 20px 60px rgba(255, 68, 68, 0.2);
+        }
+
+        .infografia-card:nth-child(5) {
+            animation-delay: 0.5s;
+            border-color: #4488ff;
+        }
+
+        .infografia-card:nth-child(5):hover {
+            border-color: #4488ff;
+            box-shadow: 0 20px 60px rgba(68, 136, 255, 0.2);
+        }
+
+        .infografia-card:hover {
+            transform: translateY(-10px);
+        }
+
+        .infografia-icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+        }
+
+        .infografia-title {
+            font-family: 'Libre Baskerville', serif;
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .infografia-card:nth-child(1) .infografia-title { color: #44ff88; }
+        .infografia-card:nth-child(2) .infografia-title { color: #ffaa44; }
+        .infografia-card:nth-child(3) .infografia-title { color: #44ff88; }
+        .infografia-card:nth-child(4) .infografia-title { color: #ff4444; }
+        .infografia-card:nth-child(5) .infografia-title { color: #4488ff; }
+
+        .infografia-description {
+            font-size: 1rem;
+            color: #ccc;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            flex-grow: 1;
+        }
+
+        .infografia-link {
+            display: inline-block;
+            padding: 12px 24px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 6px;
+            color: #fff;
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            align-self: flex-start;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .infografia-link:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.4);
+            transform: translateX(5px);
+        }
+
+        .footer-section {
+            background: rgba(255, 255, 255, 0.02);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 60px 20px;
+            margin-top: 100px;
+            text-align: center;
+            animation: fadeIn 0.8s ease-out 0.8s forwards;
+            opacity: 0;
+        }
+
+        .footer-title {
+            font-family: 'Libre Baskerville', serif;
+            font-size: 1.5rem;
+            margin-bottom: 30px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #ffaa44;
+        }
+
+        .footer-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 30px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .stat-item {
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.03);
+            border-left: 3px solid #ffaa44;
+            border-radius: 8px;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #ffaa44;
+            margin-bottom: 10px;
+            font-family: 'Space Mono', monospace;
+        }
+
+        .stat-label {
+            font-size: 0.95rem;
+            color: #aaa;
+            line-height: 1.5;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero p {
+                font-size: 1.2rem;
+            }
+
+            .infografias-grid {
+                grid-template-columns: 1fr;
+                gap: 25px;
+            }
+
+            .infografia-card {
+                padding: 25px;
+            }
+
+            .footer-stats {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="noise"></div>
+
+    <div class="container">
+        <div class="hero">
+            <h1>PLAN PRESIDENCIAL</h1>
+            <p>Seguridad Primero, Economía Después</p>
+            <div class="subtitle">
+                72 Meses de Transformación: Infografías Completas
+            </div>
+            <a href="#infografias" class="cta-button">Ver Infografías</a>
+        </div>
+
+        <div class="infografias-grid" id="infografias">
+            <a href="infografia_timeline.html" class="infografia-card" target="_blank">
+                <div class="infografia-icon">📅</div>
+                <div class="infografia-title">Timeline</div>
+                <div class="infografia-description">
+                    Línea de tiempo interactiva de 72 meses con todas las fases: Emergencia, Instituciones, Economía y Sostenibilidad. Visualiza cada hito crítico y su conexión temporal.
+                </div>
+                <a href="infografia_timeline.html" target="_blank" class="infografia-link">Abrir →</a>
+            </a>
+
+            <a href="infografia_presupuesto.html" class="infografia-card" target="_blank">
+                <div class="infografia-icon">💰</div>
+                <div class="infografia-title">Presupuesto</div>
+                <div class="infografia-description">
+                    Desglose financiero completo: $100-130B en 6 años. Incluye fuentes de financiamiento, asignación por iniciativa y diagrama de flujo de recursos.
+                </div>
+                <a href="infografia_presupuesto.html" target="_blank" class="infografia-link">Abrir →</a>
+            </a>
+
+            <a href="infografia_indicadores.html" class="infografia-card" target="_blank">
+                <div class="infografia-icon">📊</div>
+                <div class="infografia-title">Indicadores</div>
+                <div class="infografia-description">
+                    Dashboard de métricas de éxito: homicidios -30%, empleos +900k, PIB +1.5-2%, confianza +40%, migración -50%. Año 0 vs. Año 6.
+                </div>
+                <a href="infografia_indicadores.html" target="_blank" class="infografia-link">Abrir →</a>
+            </a>
+
+            <a href="infografia_riesgos.html" class="infografia-card" target="_blank">
+                <div class="infografia-icon">⚠️</div>
+                <div class="infografia-title">Riesgos</div>
+                <div class="infografia-description">
+                    Matriz de riesgos críticos con probabilidad e impacto. Incluye 4 riesgos principales y contingencias detalladas para cada uno.
+                </div>
+                <a href="infografia_riesgos.html" target="_blank" class="infografia-link">Abrir →</a>
+            </a>
+
+            <a href="infografia_gantt.html" class="infografia-card" target="_blank">
+                <div class="infografia-icon">📈</div>
+                <div class="infografia-title">Gantt Chart</div>
+                <div class="infografia-description">
+                    Cronograma de Gantt visual: todas las iniciativas mapeadas en 72 meses. Muestra solapamientos, duraciones y secuencia de implementación.
+                </div>
+                <a href="infografia_gantt.html" target="_blank" class="infografia-link">Abrir →</a>
+            </a>
+        </div>
+
+        <div class="footer-section">
+            <div class="footer-title">Resumen del Plan</div>
+
+            <div class="footer-stats">
+                <div class="stat-item">
+                    <div class="stat-number">72</div>
+                    <div class="stat-label">Meses de transformación estructurada</div>
+                </div>
+
+                <div class="stat-item">
+                    <div class="stat-number">4</div>
+                    <div class="stat-label">Fases secuenciales bien definidas</div>
+                </div>
+
+                <div class="stat-item">
+                    <div class="stat-number">$100B</div>
+                    <div class="stat-label">Inversión total en infraestructura</div>
+                </div>
+
+                <div class="stat-item">
+                    <div class="stat-number">900k</div>
+                    <div class="stat-label">Empleos formales generados</div>
+                </div>
+            </div>
+
+            <div style="margin-top: 50px; padding-top: 50px; border-top: 1px solid rgba(255, 255, 255, 0.1);">
+                <p style="color: #888; font-size: 0.95rem; line-height: 1.8;">
+                    Todas las infografías son interactivas y pueden descargarse como HTML para presentación en redes sociales o reportes.<br>
+                    <strong style="color: #fff;">Para compartir:</strong> Abre cada infografía, captura screenshots o exporta como PDF desde tu navegador.
+                </p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
